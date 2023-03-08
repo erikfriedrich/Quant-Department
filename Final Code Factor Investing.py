@@ -36,11 +36,17 @@ close["diff"] = close["factors"] - close["SPY"]
 # print(close) to see changes, print(close["diff"] should only print out the column "diff"
 
 # now we want to plot the data that we've just retrieved, transformed and manipulated
-# Plot the "diff" column
-fig, ax = plt.subplots()
-ax.plot(close.index, close["diff"], label="Outperformance")
+# Goal: Plot the "diff" column
+
+fig, ax = plt.subplots() 
+# subplots allows us to add other data to our plot -> for example; we could plot the "diff" on one part of our graphic  and the "Factors" vs. "SPY" below that | more info, see here: https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html
+
+ax.plot(close.index, close["diff"], label="Outperformance") 
+# close.index is in our case just the date ( => x-axis); close["diff"] is the value in each cell of our dataframe (=> x-Axis)
+
 ax.axhline(y=0, color='gray', linestyle='-', linewidth=1) # Add a line at y=0
-ax.legend() # right now, we don't do anything to our legend; (if you wand to) look into matplot documentation or as chatgpt how to work with the legend
+
+ax.legend() # this refers to ax.plot() where we defined our label; ax.legend() will then display the label as the legend of our plot
 
 # Goal: Format the y-axis to display values in percent (nicer to look at)
 fmt = '%.0f%%' # Set the format to display percentage values
