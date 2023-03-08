@@ -1,2 +1,2 @@
 # Quant-Department
-My contributions to the Quant Department of the Hedge Fund Club e.V. (University of Mannheim)
+The code from the sessions of the Quant Department of the Hedge Fund Club e.V. (University of Mannheim)
