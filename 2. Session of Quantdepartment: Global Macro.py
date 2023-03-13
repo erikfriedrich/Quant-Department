@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
-import yfinance as yf
 
 # this creates a dataframe from the excel file that we've stored our table in
 df = pd.read_excel(r"C:\Users\Erik\Desktop\Quant_Department_Session2\df_session2.xlsx")
