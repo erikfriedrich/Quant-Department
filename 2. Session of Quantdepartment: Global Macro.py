@@ -23,7 +23,7 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
 # make new column 'signal': 1 if 10-yr is lower than week before (we go or stay long), -1 if 10-yr is higher than week before (we go or stay short)
 
-df['signal'] = np.where(df['10-yr change'] < 0, 1, -1)
+df['signal'] = np.where(df['10-yr change'] <= 0, 1, -1)
 
 # make new column with logarithmic returns of simple buy-and-hold strategy
 
