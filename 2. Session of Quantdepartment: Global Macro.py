@@ -51,6 +51,10 @@ df['trades'].value_counts()
 
 df['s&p 500 return'] = np.log(df['s&p 500']).diff()
 
+# 'uncomment' the following line if you want to look at the performance starting from 2010
+    # I advise you to try it, the result is interesting
+        # df = df.truncate(before='2010-01-01')
+
 # plot buy and hold against our strategy
 
 plt.plot(np.exp(df['buy and hold']).cumprod(), label = 'Standard Buy and Hold')
