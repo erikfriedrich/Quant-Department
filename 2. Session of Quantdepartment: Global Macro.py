@@ -6,6 +6,11 @@ import datetime
 # this creates a dataframe from the excel file that we've stored our table in
         # download the df_2 excel file from this repository and save it on your pc
             # then copy the path of the file into the quotes
+                
+# if you don't know how to obtain the path of a file here are some sites that can help you:
+        # Mac: https://setapp.com/how-to/how-to-find-the-path-of-a-file-in-mac
+        # Windows: https://www.howtogeek.com/670447/how-to-copy-the-full-path-of-a-file-on-windows-10/
+        
 df = pd.read_excel(r"C:\Users\Erik\Desktop\Quant_Department_Session2\df_session2.xlsx")
 
 # now we set the date as our index; this will help us later (when we plot it)
