@@ -32,6 +32,8 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 df['signal'] = np.where(df['10-yr change'] <= 0, 1, -1)
 
 # make new column with logarithmic returns of simple buy-and-hold strategy
+        # we use logarithmic returns since they're symmetric, meaning that logarithmic returns of the same magnitude but opposite signs will cancel eachother out
+                # if u use normal returns -50% and +50% will not get you back to 100% 
 
 df['buy and hold'] = np.log(df['gold']).diff()
 
