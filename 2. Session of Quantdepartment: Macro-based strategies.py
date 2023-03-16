@@ -20,6 +20,8 @@ df = df.set_index('date')
 
 # new column with the change of the 10-yr compared to last week -> will be used to create trading signals
     # one variation here could be to say that the change has to be of a specific amplitude
+        # periods = 1 could be left out since it's the standard value, but it makes it easier to change them in the future
+        
     
 df['10-yr change'] = df['10-yr'].diff(periods = 1)
 
@@ -50,8 +52,18 @@ df['trades'] = df['signal'].diff()
 df['trades'].value_counts()
 
 # now we want to know how it compares to the s&p 500, for that we first calculate it's return, before plotting it
+        # and oil
 
 df['s&p 500 return'] = np.log(df['s&p 500']).diff()
+df['oil return'] = np.log(df['commodities']).diff()
+
+# this code will calculate the correlation between the different asstes and our strategy
+corr_gold_strategy = df['strategy'].corr(df['buy and hold'])
+corr_treasury_strategy = df['strategy'].corr(df['10-yr'])
+corr_gold_treasury = df['gold'].corr(df['10-yr'])
+
+# this fills in all 'NaN' values with 0
+df.fillna(0, inplace = True)
 
 # 'uncomment' the following line if you want to look at the performance starting from 2010
     # I advise you to try it, the result is interesting
@@ -62,6 +74,7 @@ df['s&p 500 return'] = np.log(df['s&p 500']).diff()
 plt.plot(np.exp(df['buy and hold']).cumprod(), label = 'Standard Buy and Hold')
 plt.plot(np.exp(df['strategy']).cumprod(), label = 'Our Trading Strategy')
 plt.plot(np.exp(df['s&p 500 return']).cumprod(), label = 'Benchmark: S&P 500')
+plt.plot(np.exp(df['oil return']).cumprod(), label = 'Benchmark: Oil')
 plt.legend(loc=2)
 plt.title('Trading Strategy based on 10-yr treasury and gold')
 plt.grid(True, alpha = 0.5)
@@ -71,6 +84,7 @@ print('Returns:')
 print(np.exp(df['buy and hold']).cumprod()[-2] - 1, 'Buy and Hold')
 print(np.exp(df['strategy']).cumprod()[-2] - 1, 'Our Strategy')
 print(np.exp(df['s&p 500 return']).cumprod()[-2] - 1, 'S&P 500')
+print(np.exp(df['oil return']).cumprod()[-1] - 1, 'Oil')
 
 # we see that our strategy underperformed very very badly
     # what changes to our strategy could we make to improve it?
@@ -80,3 +94,10 @@ print('Volatilities:')
 print(df['buy and hold'].std()*36**0.5, 'Buy and Hold')
 print(df['strategy'].std()*36**0.5, 'Our Strategy')
 print(df['s&p 500 return'].std()*36**0.5, 'S&P 500')
+print(df['oil return'].std()*36**0.5, 'Oil')
+
+# print out the correlations that we've calculated before
+print('Correlation:')
+print('Correlation between Gold and our Strategy:', corr_gold_strategy)
+print('Correlation between Treasury and our Strategy:',corr_treasury_strategy)
+print('Correlation between Gold and Treasury:',corr_gold_treasury)
