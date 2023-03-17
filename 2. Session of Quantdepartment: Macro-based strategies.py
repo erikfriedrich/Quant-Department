@@ -11,7 +11,7 @@ import datetime
         # Mac: https://setapp.com/how-to/how-to-find-the-path-of-a-file-in-mac
         # Windows: https://www.howtogeek.com/670447/how-to-copy-the-full-path-of-a-file-on-windows-10/
         
-df = pd.read_excel(r"C:\Users\Erik\Desktop\Quant_Department_Session2\df_session2.xlsx")
+df = pd.read_excel(r"[insert file path here]") # use the commodities excel if you want oil, else use the regular one
 
 # now we set the date as our index; this will help us later (when we plot it)
 df = df.set_index('date')
