@@ -23,6 +23,10 @@ df["silver return"] = np.log(df["silver"]).diff()
 df['simple long gold'] = 0.5 * df['gold'].pct_change(1) - 0.5 * df['silver'].pct_change(1)
 df['simple short gold'] = (-0.5) * df['gold'].pct_change(1) + 0.5 * df['silver'].pct_change(1)
 
+# second strategy
+df['long both'] = 0.5*df['gold'].pct_change(1) + 0.5*df["silver"].pct_change(1)
+df["log long both"] = np.log(df['long both'] + 1)
+
 # turn the simple returns into log returns
 df['log long gold'] = np.log(df['simple long gold'] + 1)
 df['log short gold'] = np.log(df['simple short gold'] + 1)
@@ -53,6 +57,11 @@ df['signal'] = np.where(df["relative"] < floor, "long gold", df['signal'])
 df['strategy'] = np.where(df['signal'] == "short gold", df['log short gold'], df['spy return'])
 df['strategy'] = np.where(df['signal'] == "long gold", df['log long gold'], df['strategy'])
 
+# second strategy
+
+df['2 strategy'] = np.where(df['signal'] == "short gold", df['log short gold'], df['log long both'])
+df['2 strategy'] = np.where(df['signal'] == 'long gold', df['log long gold'], df['2 strategy'])
+
 # fill in NaN values with 0
 df.fillna(0, inplace = True)
 
@@ -62,6 +71,7 @@ df = df.truncate(before = '2000-01-01')
 # plot our strategy against the spy
 plt.plot(np.exp(df['strategy']).cumprod(), label = "return of our strategy")
 plt.plot(np.exp(df['spy return']).cumprod(), label = "return of spy")
+plt.plot(np.exp(df['2 strategy']).cumprod(), label = 'return of second strategy')
 plt.legend(loc=2)
 plt.title("Our trading strategy against the S&P 500")
 plt.grid(True, alpha = .5)
@@ -69,9 +79,13 @@ plt.grid(True, alpha = .5)
 # calculate the volatilities and plot them against eachother
 df['Strategy Volatility'] = df['strategy'].rolling(window=252).std() * np.sqrt(252)
 df['S&P Volatility'] = df['spy return'].rolling(window=252).std() * np.sqrt(252)
+df["2 Strategy Volatility"] = df['2 strategy'].rolling(window=252).std() * np.sqrt(252)
 
-df[['Strategy Volatility', 'S&P Volatility']].plot(figsize=(8,6))
+df[['Strategy Volatility', 'S&P Volatility', '2 Strategy Volatility']].plot(figsize=(8,6))
 
-# print correlation between our strategy and s&p 
+# print correlation between our strategies and s&p 
 corr_strategy_spy = df['strategy'].corr(df['spy return'])
-print("correlation of our strategy to the spy:", corr_strategy_spy)
+print("correlation of our strategy to the spy:", corr_strategy_spy) # 0.9 (pracitcally perfect)
+
+corr_2strategy_spy = df['2 strategy'].corr(df['spy return'])
+print("correlation of our second strategy to the spy:", corr_2strategy_spy) # 0.1 (almost no correlation)
