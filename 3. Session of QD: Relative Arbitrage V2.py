@@ -74,14 +74,19 @@ plt.plot(np.exp(df['spy return']).cumprod(), label = "return of spy")
 plt.plot(np.exp(df['2 strategy']).cumprod(), label = 'return of second strategy')
 plt.legend(loc=2)
 plt.title("Our trading strategy against the S&P 500")
-plt.grid(True, alpha = .5)
+plt.minorticks_on()
+plt.grid(visible = True, alpha = .5, which = 'major', color = 'black')
+plt.grid(visible = True, alpha = .5, which = "minor", color = 'gray', linestyle = "--")
 
 # calculate the volatilities and plot them against eachother
 df['Strategy Volatility'] = df['strategy'].rolling(window=252).std() * np.sqrt(252)
 df['S&P Volatility'] = df['spy return'].rolling(window=252).std() * np.sqrt(252)
 df["2 Strategy Volatility"] = df['2 strategy'].rolling(window=252).std() * np.sqrt(252)
 
-df[['Strategy Volatility', 'S&P Volatility', '2 Strategy Volatility']].plot(figsize=(8,6))
+df[['Strategy Volatility', 'S&P Volatility', '2 Strategy Volatility']].plot(figsize=(10,5))
+plt.minorticks_on()
+plt.grid(visible = True, alpha = .5, which = 'major', color = 'black')
+plt.grid(visible = True, alpha = .5, which = "minor", color = 'gray', linestyle = "--")
 
 # print correlation between our strategies and s&p 
 corr_strategy_spy = df['strategy'].corr(df['spy return'])
