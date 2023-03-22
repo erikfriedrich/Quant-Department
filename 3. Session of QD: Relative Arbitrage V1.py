@@ -7,7 +7,7 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 pd.set_option('display.max_rows', None)
 
 # read in excel file as our dataframe
-df = pd.read_excel(r"C:\Users\Erik\Desktop\df_session3.xlsx")
+df = pd.read_excel(r"/Users/erikfriedrich/Downloads/df_session3.xlsx")
 
 # make date column the index
 df = df.set_index('date')
@@ -20,6 +20,14 @@ df['spy return'] = np.log(df['spy']).diff()
 df["gold return"] = np.log(df["gold"]).diff()
 df["silver return"] = np.log(df["silver"]).diff()
 
+df['simple long gold'] = 0.5 * df['gold'].pct_change(1) - 0.5 * df['silver'].pct_change(1)
+df['simple short gold'] = (-0.5) * df['gold'].pct_change(1) + 0.5 * df['silver'].pct_change(1)
+
+df['long both'] = 0.5*df['gold'].pct_change(1) + 0.5*df["silver"].pct_change(1)
+df["log long both"] = np.log(df['long both'] + 1)
+
+df['log long gold'] = np.log(df['simple long gold'] + 1)
+df['log short gold'] = np.log(df['simple short gold'] + 1)
 # calculate correlation between gold and silver ( around 0.9 )
 corr_gs = df['gold'].corr(df['silver'])
 
@@ -46,6 +54,12 @@ df['signal'] = np.where(df["relative"] < floor, "long gold short silver", df['si
 df['strategy'] = np.where(df['signal'] == "short gold long silver", (-1)*df['gold return'], df['spy return'])
 df['strategy'] = np.where(df['signal'] == "long gold short silver", (-1)*df['silver return'], df['strategy'])
 
+df['strategy2'] = np.where(df['signal'] == "short gold long silver", (-1)*df['gold return'], df['log long both'])
+df['strategy2'] = np.where(df['signal'] == "long gold short silver", (-1)*df['silver return'], df['strategy2'])
+
+df['strategy3'] = np.where(df['signal'] == "short gold long silver", df['log short gold'], df['log long both'])
+df['strategy3'] = np.where(df['signal'] == "long gold short silver", df['log long gold'], df['strategy3'])
+
 # fill in NaN values with 0
 df.fillna(0, inplace = True)
 
@@ -55,6 +69,8 @@ df = df.truncate(before = '2000-01-01')
 # plotting the different strategies
 plt.plot(np.exp(df['strategy']).cumprod(), label = "return of our strategy")
 plt.plot(np.exp(df['spy return']).cumprod(), label = "return of spy")
+plt.plot(np.exp(df['strategy2']).cumprod(), label = 'Strategy 2')
+plt.plot(np.exp(df['strategy3']).cumprod(), label = 'Strategy 3')
 plt.legend(loc=2)
 plt.title("Our trading strategy against the S&P 500")
 plt.grid(True, alpha = .5)
