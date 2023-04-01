@@ -28,9 +28,11 @@ sharpe_ratio_vix = (annualized_return_strategy_vix - 3) / vola_vix
 # goal: beta 
 
 covariance_vix = np.cov(df["strategy vix"], df["spy return"])[0][1]
+# or use std()
 variance_spy = np.var(df['spy return'])
+variance_vix = np.var(df['strategy vix'])
 
-beta_vix = covariance_vix / variance_spy
+beta_vix = covariance_vix / sqrt(variance_spy * variance_vix)
 
 
 # risk_free_rate = 3% -> calculate our alpha
