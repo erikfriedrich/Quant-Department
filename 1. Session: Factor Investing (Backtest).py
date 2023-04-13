@@ -5,7 +5,7 @@ import matplotlib.ticker as mtick
 
 
 # make a list with the tickers that we want the data for
-# Ticker symbols for the S&P 500, S&P 500 Momentum index, S&P 500 Quality index ETFs, and S&P 500 High Beta ETF
+# Ticker symbols for the S&P 500 ETF, S&P 500 Momentum ETF, S&P 500 Quality ETF, and S&P 500 High Beta ETF
 tickers = ["SPY", "SPMO", "SPHQ", "SPHB"]
 
 
