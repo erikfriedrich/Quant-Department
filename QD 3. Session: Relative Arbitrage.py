@@ -105,10 +105,8 @@ df[['Strategy Volatility', 'S&P Volatility']].plot(figsize=(8,6))
 # print correlation between our strategy and s&p
     # give me an interpretation of this value
 corr_strategy_spy = df['strategy'].corr(df['spy return'])
-
-
-
-
-
-
 print("correlation of our strategy to the spy:", corr_strategy_spy)
+
+
+
+
