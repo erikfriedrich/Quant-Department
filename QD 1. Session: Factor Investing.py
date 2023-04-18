@@ -81,4 +81,5 @@ plt.plot(np.exp(df["spy log return"]).cumprod(), label = "Return  of Spy")
 plt.legend(loc=2)
 plt.title('Our Factor Portfolio against the SPY')
 plt.grid(True, alpha = 0.5)
+plt.show()
 plt.show() # this shows the plot that we've created beforehand
