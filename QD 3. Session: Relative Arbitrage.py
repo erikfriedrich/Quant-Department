@@ -20,7 +20,6 @@ df = df.set_index('date')
 
 # Strategy:
 # compare relative value of gold and silver to historic average
-
     # make a ceiling value
         # if relative > avg+1,5*std we'll go short gold, long silver
     # make a floor value
@@ -31,7 +30,8 @@ df = df.set_index('date')
 # this cuts off all the data before the year 2000 - this is useful, if you want to look at specific intervals
 # we do this now because it helps with computational time and the timeframe has an effect on the average relative value of silver to gold etc.
 df = df.truncate(before = '2000-01-01')
-        
+
+# get relative value of siler to gold
 df["relative"] = df['gold']/df['silver']
 
 # make two new columns with the log returns of each asset
