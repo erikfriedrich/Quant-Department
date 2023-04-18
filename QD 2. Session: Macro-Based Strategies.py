@@ -103,10 +103,11 @@ print(np.exp(df['strategy']).cumprod()[-1] - 1, 'Our Strategy')
 print(np.exp(df['s&p 500 return']).cumprod()[-1] - 1, 'S&P 500')
 print(np.exp(df['oil return']).cumprod()[-1] - 1, 'Oil')
 
-# we see that our strategy underperformed very very badly
+# we see that our strategy underperformed very very badly (only compared to S&P 500)
     # what changes to our strategy could we make to improve it?
     
-# calculate the volatility of everything; we'll use 36 weeks instead of 252 days
+# calculate the volatility of everything; we'll use 36 weeks instead of 252 days, since we have weekly data
+        # interpret the values
 print('Volatilities:')
 print(df['buy and hold'].std()*36**0.5, 'Buy and Hold')
 print(df['strategy'].std()*36**0.5, 'Our Strategy')
@@ -114,7 +115,14 @@ print(df['s&p 500 return'].std()*36**0.5, 'S&P 500')
 print(df['oil return'].std()*36**0.5, 'Oil')
 
 # print out the correlations that we've calculated before
+        # interpret the values
 print('Correlation:')
 print('Correlation between Gold and our Strategy:', corr_gold_strategy)
 print('Correlation between Treasury and our Strategy:',corr_treasury_strategy)
+
+
+
+
+
+
 print('Correlation between Gold and Treasury:',corr_gold_treasury)
