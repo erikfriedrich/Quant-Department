@@ -78,11 +78,11 @@ df['signal'] = np.where(df["relative"] < floor, "long gold short silver", df['si
 
 # get the returns of our trading strategy depending on the signal
 
-df['strategy 1'] = np.where(df['signal'] == "short gold long silver", (-1)*df['gold return'], df['spy return'])
-df['strategy 1'] = np.where(df['signal'] == "long gold short silver", (-1)*df['silver return'], df['strategy'])
+df['strategy 1'] = np.where(df['signal'] == "short gold long silver", (-1)*df['log short gold'], df['spy return'])
+df['strategy 1'] = np.where(df['signal'] == "long gold short silver", (-1)*df['log long gold'], df['strategy 1'])
 
 df['strategy 2'] = np.where(df['signal'] == "short gold long silver", df['log short gold'], df['log long both'])
-df['strategy 2'] = np.where(df['signal'] == "long gold short silver", df['log long gold'], df['strategy3'])
+df['strategy 2'] = np.where(df['signal'] == "long gold short silver", df['log long gold'], df['strategy 2'])
 
 # fill in NaN values with 0
 df.fillna(0, inplace = True)
@@ -90,7 +90,7 @@ df.fillna(0, inplace = True)
 # plotting the different strategies
 plt.plot(np.exp(df['strategy 1']).cumprod(), label = "return of our strategy 1 (with spy)")
 plt.plot(np.exp(df['spy return']).cumprod(), label = "return of spy")
-plt.plot(np.exp(df['strategy2']).cumprod(), label = 'return of our strategy 2 (without spy)')
+plt.plot(np.exp(df['strategy 2']).cumprod(), label = 'return of our strategy 2 (without spy)')
 plt.legend(loc=2)
 plt.title("Our trading strategy against the S&P 500")
 plt.grid(True, alpha = .5)
@@ -98,14 +98,18 @@ plt.grid(True, alpha = .5)
 # calculate (daily) volatilities and plot them against eachother    
     # what implications could the volatility of a strategy have for a Portfolio Manager?
     
-df['Strategy Volatility'] = df['strategy'].rolling(window=252).std() * np.sqrt(252)
+df['Strategy Volatility 1'] = df['strategy 1'].rolling(window=252).std() * np.sqrt(252)
+df['Strategy Volatility 2'] = df['strategy 2'].rolling(window=252).std() * np.sqrt(252)
 df['S&P Volatility'] = df['spy return'].rolling(window=252).std() * np.sqrt(252)
-df[['Strategy Volatility', 'S&P Volatility']].plot(figsize=(8,6))
+df[['Strategy Volatility 1', 'Strategy Volatility 2', 'S&P Volatility']].plot(figsize=(8,6))
 
 # print correlation between our strategy and s&p
     # give me an interpretation of this value
-corr_strategy_spy = df['strategy'].corr(df['spy return'])
-print("correlation of our strategy to the spy:", corr_strategy_spy)
+corr_strategy1_spy = df['strategy 1'].corr(df['spy return'])
+corr_strategy2_spy = df['strategy 2'].corr(df['spy return'])
+print("correlation of our strategy 1 to the spy:", corr_strategy1_spy)
+print("correlation of our strategy 2 to the spy:", corr_strategy2_spy)
+
 
 
 
