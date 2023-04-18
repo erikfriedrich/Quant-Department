@@ -119,10 +119,8 @@ print(df['oil return'].std()*36**0.5, 'Oil')
 print('Correlation:')
 print('Correlation between Gold and our Strategy:', corr_gold_strategy)
 print('Correlation between Treasury and our Strategy:',corr_treasury_strategy)
-
-
-
-
-
-
 print('Correlation between Gold and Treasury:',corr_gold_treasury)
+
+
+
+
