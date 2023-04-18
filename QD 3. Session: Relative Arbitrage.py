@@ -28,6 +28,10 @@ df = df.set_index('date')
     # if the avg-std <= relative <= avg+std we'll (1) hold the s&p 500 or (2) go long silver and gold
         # make a new column with the relative value of gold to silver
         
+# this cuts off all the data before the year 2000 - this is useful, if you want to look at specific intervals
+# we do this now because it helps with computational time and the timeframe has an effect on the average relative value of silver to gold etc.
+df = df.truncate(before = '2000-01-01')
+        
 df["relative"] = df['gold']/df['silver']
 
 # make two new columns with the log returns of each asset
@@ -82,9 +86,6 @@ df['strategy 2'] = np.where(df['signal'] == "long gold short silver", df['log lo
 
 # fill in NaN values with 0
 df.fillna(0, inplace = True)
-
-# this cuts off all the data before 2000
-df = df.truncate(before = '2000-01-01')
 
 # plotting the different strategies
 plt.plot(np.exp(df['strategy 1']).cumprod(), label = "return of our strategy 1 (with spy)")
