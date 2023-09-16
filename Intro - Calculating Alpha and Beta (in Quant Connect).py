@@ -37,30 +37,89 @@ cov_matrix = df.cov()
 df.cov()
 
 covariance = cov_matrix.iloc[2,3]
-covariance
+print(f"covariance = {covariance}")
 
 variance = cov_matrix.iloc[2,2]
-variance
+print(f"variance = {variance}")
 
 # calculating beta by definition
 beta = covariance / variance
-beta
+print(f"beta = {beta}")
 
 # to calculate the alpha we'll need some additional data
 # alpha = portfolio return - (risk-free rate + beta*(expected market return - risk-free rate)
 
 # Portfolio Return
 preturn = (df["TSLA"][-1]/df["Tsla"][0])**(1/(3000/365.25))-1
-print(preturn)
+print(f"preturn = {preturn}")
 
 # Market Return
 mreturn = (df["SPY"][-1]/df["spy"][0])**(1/(3000/365.25))-1
-print(mreturn)
+print(f"mreturn = {mreturn}")
 
 # Risk-Free Rate
 rfr = 0.02 # more ore less average from last 10-years
-print(rfr)
+print(f"rfr = {rfr}")
 
 # Final-Step: Calculate the Alpha
 alpha = preturn-rfr-beta*(mreturn-rfr)
-alpha
+print(f"alpha = {alpha}")
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Line chart of closing prices 
+plt.plot(df['Spy'], label='SPY')
+plt.plot(df['Tsla'], label='TSLA')
+plt.legend()
+plt.xlabel('Year')
+plt.ylabel('Closing Price')
+plt.title('Closing Prices Over Time')
+plt.show()
+
+# Scatter plot of daily returns
+plt.scatter(df['Spy Returns'], df['Tsla Returns'])
+plt.xlabel('SPY Returns')  
+plt.ylabel('TSLA Returns')
+plt.title('Relationship Between Daily Returns')
+plt.show() 
+
+# Histogram of daily returns
+plt.hist(df['Spy Returns'], alpha=0.5, label='SPY')
+plt.hist(df['Tsla Returns'], alpha=0.5, label='TSLA')
+plt.legend()
+plt.xlabel('Daily Returns')
+plt.ylabel('Frequency')
+plt.title('Distribution of Daily Returns')
+plt.show()
+
+# Bar chart of risk metrics
+metrics = [alpha, beta, preturn, mreturn, rfr]
+labels = ['Alpha', 'Beta', 'Portfolio Return', 'Market Return', 'Risk Free Rate']
+plt.bar(labels, metrics)
+plt.ylabel('Values')
+plt.title('Risk Metrics')
+plt.show()
+
+# Normalize stock prices
+df['Spy_norm'] = df['Spy'] / df['Spy'].iloc[0] 
+df['Tsla_norm'] = df['Tsla'] / df['Tsla'].iloc[0]
+
+# Plot normalized prices
+plt.plot(df['Spy_norm'], label='SPY Normalized')
+plt.plot(df['Tsla_norm'], label='TSLA Normalized')
+plt.xlabel('Days')
+plt.ylabel('Normalized Price')
+plt.title('Normalized Closing Prices Over Time')
+plt.legend()
+plt.show()
+
+rolling_correlation = df['Spy Returns'].rolling(window=90).corr(df['Tsla Returns'])
+plt.figure(figsize=(12,6))
+rolling_correlation.plot()
+plt.title('90-Day Rolling Correlation between SPY and TSLA Returns')
+plt.xlabel('Date')
+plt.ylabel('Correlation')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
