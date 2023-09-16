@@ -1,4 +1,5 @@
 # import libraries that we might/will need
+import seaborn as sns
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -36,21 +37,37 @@ ef = EfficientFrontier(returns, covariance, weight_bounds=(0.05, 0.50))
 raw_weightings= ef.max_sharpe(risk_free_rate=0.02)
 cleaned_weightings = ef.clean_weights()
 
+# print(cleaned_weights)
+
 # pct change to calculate return
 df = df.pct_change()
 df.fillna(0, inplace=True)
 
 # add a new column with the return of our portfolio
-df["portfolio simple return"] = df["QUAL VIBZ5HTB7N8L"] * cleaned_weightings["QUAL VIBZ5HTB7N8L"] + df["MTUM VFUDGZIY8ZMT"] * cleaned_weightings["MTUM VFUDGZIY8ZMT"] + df["VLUE VFUDGZIY8ZMT"] * cleaned_weightings["VLUE VFUDGZIY8ZMT"] + df["SIZE VFUDGZIY8ZMT"] * cleaned_weightings["SIZE VFUDGZIY8ZMT"] + df["SVAL XJ34A6UAQI5H"] * cleaned_weightings["SVAL XJ34A6UAQI5H"]
+df["portfolio simple return"] = sum(df[symbol] * cleaned_weightings[symbol] for symbol in cleaned_weightings.keys())
 
-# prints the returns of every strategy
-plt.plot((df["portfolio simple return"]+1).cumprod(), label = "Return of Our Portfolio")
-plt.plot((df["SVAL"]+1).cumprod(), label = "SVAL")
-plt.plot((df["QUAL"]+1).cumprod(), label = "QUAL")
-plt.plot((df["MTUM"]+1).cumprod(), label = "MTUM")
-plt.plot((df["SIZE"]+1).cumprod(), label = "SIZE")
-plt.plot((df["VLUE"]+1).cumprod(), label = "VLUE")
-plt.legend(loc=2)
-plt.title('Our Factor Portfolio')
-plt.grid(True, alpha = 0.5)
+# Cumulative Return Plot
+cumulative_returns = (df[['portfolio simple return']] + 1).cumprod()
+plt.figure(figsize=(12, 6))
+cumulative_returns.plot(title='Cumulative Returns Over Time', ax=plt.gca())
+plt.grid(True, alpha=0.5)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# a. Volatility
+portfolio_volatility = df["portfolio simple return"].std()
+print(f"Portfolio Volatility: {portfolio_volatility:.4f}")
+
+# b. Maximum Drawdown
+cumulative_return = (df["portfolio simple return"] + 1).cumprod()
+max_drawdown = ((cumulative_return.cummax() - cumulative_return) / cumulative_return.cummax()).max()
+print(f"Maximum Drawdown: {max_drawdown:.4f}")
+
+# 4. Correlation Matrix
+correlation_matrix = df.corr()
+plt.figure(figsize=(10, 7))
+plt.title('Correlation Matrix Heatmap')
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+plt.tight_layout()
 plt.show()
