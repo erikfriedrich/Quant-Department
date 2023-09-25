@@ -123,9 +123,9 @@ def getStrategyStats(data, rfr):
         Trading_Strat["Total_Returns"] = df["Strategy_Cumulative_Returns"][-1] - 1
         BAH_Strat["Total_Returns"] = df["BAH_Cumulative_Returns"][-1] - 1
 
-        # mean annual returns
-        Trading_Strat["Annual_Returns"] = Trading_Strat['Total_Returns'] * (1 / (len(df) / 252))
-        BAH_Strat["Annual_Returns"] = BAH_Strat['Total_Returns'] * (1 / (len(df) / 252))
+        # compound annual growth rate
+        Trading_Strat["Annual_Returns"] = (Trading_Strat['Total_Returns'] + 1) ** (1 / (len(df) / 252)) - 1
+        BAH_Strat["Annual_Returns"] = (BAH_Strat['Total_Returns'] + 1) ** (1 / (len(df) / 252)) - 1
 
         # annual volatility
         Trading_Strat["Annual_Volatility"] = df["Strategy_Returns"].std() * np.sqrt(252)
@@ -134,6 +134,15 @@ def getStrategyStats(data, rfr):
         # sharpe ratio
         Trading_Strat["Sharpe_Ratio"] = (Trading_Strat['Annual_Returns'] - rfr) / Trading_Strat['Annual_Volatility']
         BAH_Strat["Sharpe_Ratio"] = (BAH_Strat['Annual_Returns'] - rfr) / BAH_Strat['Annual_Volatility']
+
+        # sortino ratio
+        df_negative = df[df["Strategy_Returns"]<0]
+        negative_std = df_negative["Strategy_Returns"].std() * np.sqrt(252)
+        Trading_Strat["Sortiono_Ratio"] = (Trading_Strat["Annual_Returns"]-rfr)/negative_std
+
+        df_negative = df[df["Log_Returns"]<0]
+        negative_std = df_negative["Log_Returns"].std() * np.sqrt(252)
+        BAH_Strat["Sortiono_Ratio"] = (BAH_Strat["Annual_Returns"]-rfr)/negative_std
 
         # max drawdown
         trading_dd = (df["Strategy_Cumulative_Returns"] - df["Strategy_High"]) / df["Strategy_High"]
@@ -145,7 +154,7 @@ def getStrategyStats(data, rfr):
         stats_dict[ticker] = {"Trading_Stats": Trading_Strat, "BAH_Stats": BAH_Strat}
 
     return stats_dict
-
+    
 def plotData(plot_tickers):
     
     for ticker in plot_tickers:
