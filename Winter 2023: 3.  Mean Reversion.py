@@ -10,7 +10,6 @@ def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
     results = {}  # dictionary to store results for each ticker
 
     for ticker in tickers:
-
         # add our ticker to the equities
         symbol = qb.AddEquity(ticker).Symbol
 
