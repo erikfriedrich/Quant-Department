@@ -150,12 +150,15 @@ def plotData(plot_tickers):
     
     for ticker in plot_tickers:
         fig, ax = plt.subplots(figsize=(12, 5))
+        
         ax.plot(data_safety[ticker]['Strategy_Cumulative_Returns'], label=f'{ticker} - Mean Reversion Strategy with Safety')
         ax.plot(data[ticker]['Strategy_Cumulative_Returns'], label=f'{ticker} - Mean Reversion Strategy')
         ax.plot(data_safety[ticker]['BAH_Cumulative_Returns'], label=f'{ticker} - Buy and Hold')
+        
         ax.set_xlabel('Date')
         ax.set_ylabel('Returns (%)')
         ax.set_title('Cumulative Returns for Mean Reversion and Buy and Hold Strategies')
+        
         ax.legend()
         plt.show()
 
@@ -165,7 +168,9 @@ def displayPerformance(display_tickers):
 
         ticker_df = pd.DataFrame(stats_dict[ticker]).round(3)
         ticker_df = ticker_df.drop("BAH_Stats", axis=1)
+        
         ticker_safe_df = pd.DataFrame(safe_stats_dict[ticker]).round(3)
+        
         merged_df = pd.merge(ticker_df, ticker_safe_df, left_index=True, right_index=True)
         merged_df.rename(columns={"Trading_Stats_x": "Trading Stats", "Trading_Stats_y": "Trading Stats with Safety Mechanism","BAH_Stats": "Buy and Hold Stats"}, inplace=True)
         
