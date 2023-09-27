@@ -6,10 +6,18 @@ from tabulate import tabulate
 
 qb = QuantBook()
 
-def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
-    results = {}  # dictionary to store results for each ticker
+# define a function that simulates a SMA Mean Reversion strategy for given tickers,
+                                                  # a specific duration of the SMA,
+                                                 # a threshold on when to buy/sell,
+                       # a "safety net" when to exit given an unpredictable market,
+                     # and the total number of days that we want to have simulated
 
+def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
+    results = {}  # create a dictionary to store the results for each ticker
+
+    # loop that goes through each ticker that is the list of tickers
     for ticker in tickers:
+        
         # add our ticker to the equities
         symbol = qb.AddEquity(ticker).Symbol
 
