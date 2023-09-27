@@ -38,11 +38,11 @@ def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
         df["Lower"] = df["SMA"] - threshold * df["STD"]
         df["Safety_Lower"] = df["SMA"] - safety_threshold * df["STD"]
 
-        # make a column to signal if we'll go long (1), short (2) or stay neutral (0)
+        # make a column to signal if we'll go long (1), short (-1) or stay neutral (0)
         df["Signal"] = np.where((df[symbol]>df["Upper"]) & (df[symbol]<df["Safety_Upper"]), -1, 0)
         df["Signal"] = np.where((df[symbol]<df["Lower"]) & (df[symbol] > df["Safety_Lower"]), 1, df["Signal"])
 
-        # drop first (n_sma) number of days, bc NaN values
+        # drop first (n_sma) number of days, because of NaN values
         # get all the values after the first n_sma days
         # this is useful otherwise the first entry for the BAH Return column wouldn't be 1 (might be higher or lower) => screws our return metrics
         df = df.iloc[n_sma:]
@@ -51,7 +51,7 @@ def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
         df["Log_Returns"] = np.log(df[symbol]/df[symbol].shift(1)).fillna(0)
 
         # calculate our strategies returns
-        # days X return is dependend on the equities return that day and the direction we chose the day before => we have to take the signal from the day before
+        # days X return is dependent on the equities return that day and the direction we chose the day before => we have to take the signal from the day before
         df["Strategy_Returns"] = df["Log_Returns"] * df["Signal"].shift(1).fillna(0)
         df["Strategy_Cumulative_Returns"] = np.exp(df['Strategy_Returns'].cumsum()).fillna(0)
 
@@ -90,20 +90,20 @@ def SMAMeanReversion(tickers, n_sma, threshold, n_days):
         df["Upper"] = df["SMA"] + threshold * df["STD"]
         df["Lower"] = df["SMA"] - threshold * df["STD"]
 
-        # make a column to signal if we'll go long (1), short (2) or stay neutral (0)
+        # make a column to signal if we'll go long (1), short (-1) or stay neutral (0)
         df["Signal"] = np.where((df[symbol]>df["Upper"]), -1, 0)
         df["Signal"] = np.where((df[symbol]<df["Lower"]), 1, df["Signal"])
 
         # drop first (n_sma) number of days, bc NaN values
         # get all the values after the first n_sma days
-        # this is useful otherwise the first entry for the BAH Return column wouldn't be 1 (might be higher or lower) => screws our return metrics
+        # This is useful otherwise the first entry for the BAH Return column wouldn't be 1 (might be higher or lower) => which screws our return metrics
         df = df.iloc[n_sma:]
 
         # calculate the log return of each day
         df["Log_Returns"] = np.log(df[symbol]/df[symbol].shift(1)).fillna(0)
 
         # calculate our strategies returns
-        # days X return is dependend on the equities return that day and the direction we chose the day before => we have to take the signal from the day before
+        # days X return is dependent on the equities return that day and the direction we chose the day before => we have to take the signal from the day before
         df["Strategy_Returns"] = df["Log_Returns"] * df["Signal"].shift(1).fillna(0)
         df["Strategy_Cumulative_Returns"] = np.exp(df['Strategy_Returns'].cumsum()).fillna(0)
 
@@ -111,7 +111,7 @@ def SMAMeanReversion(tickers, n_sma, threshold, n_days):
         df["Strategy_High"] = df["Strategy_Cumulative_Returns"].cummax()
         df["Strategy_Low"] = df["Strategy_Cumulative_Returns"].cummin()
 
-        # we want to compare to buy and hold => calcualte every metric again
+        # We want to compare to buy and hold => calculate every metric again
 
         # return + high and low
         df["BAH_Cumulative_Returns"] = np.exp(df['Log_Returns'].cumsum()).fillna(0)
@@ -122,10 +122,14 @@ def SMAMeanReversion(tickers, n_sma, threshold, n_days):
 
     return results
 
-def getStrategyStats(data, rfr):
-    stats_dict = {}
 
+# define a function that uses our data generated from the trading strategies, to calculate various risk metrics
+def getStrategyStats(data, rfr):
+    stats_dict = {} # create a dictionary to store each strategies stats in
+
+    # will iterate over every ticker and dataframe "pair" that we've stored in the data
     for ticker, df in data.items():
+      
         # create dictionaries for our strategy as well as buy and hold
         Trading_Strat, BAH_Strat = {}, {}
 
@@ -197,16 +201,13 @@ def displayPerformance(display_tickers):
         print(tabulate(merged_df, headers='keys', tablefmt="grid"))
         print()
 
-tickers = ["SNAP", "AAL", "A", "TSLA"]
+tickers = ["SNAP", "AAL"]
 
-n_sma = 200
+n_sma = 20
 threshold = 1 # number of std it has to deviate from the sma
 safety_threshold = 3 # losses during rare events/ downward moves (e.g. Covid-Crash) => "Safety Net"
 
-n_days = 100000 # this number of days is large enough so that we get all the data from the listing until now
-                # if n_days if further back than the listing, the df will automatically start at the day of the listing
-                # if you want less days, just reduce it
-                # with datetime you could also get it from a specific date on
+n_days = 500 # can be chosen upon desire, but less data points are better to visualize
 rfr = 0.02
 
 data = SMAMeanReversion(tickers, n_sma, threshold, n_days)
