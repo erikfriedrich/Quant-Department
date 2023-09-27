@@ -6,11 +6,12 @@ from tabulate import tabulate
 
 qb = QuantBook()
 
-# define a function that simulates a SMA Mean Reversion strategy for given tickers,
-                                                  # a specific duration of the SMA,
-                                                 # a threshold on when to buy/sell,
-                       # a "safety net" when to exit given an unpredictable market,
-                     # and the total number of days that we want to have simulated
+# define a function that 
+  # simulates a SMA Mean Reversion strategy for given tickers,
+  # a specific duration of the SMA,
+  # a threshold on when to buy/sell,
+  # a "safety net" when to exit given an unpredictable market,
+  # and the total number of days that we want to have simulated
 
 def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
     results = {}  # create a dictionary to store the results for each ticker
@@ -33,12 +34,13 @@ def SMAMeanReversionSafety(tickers, n_sma, threshold, safety_threshold, n_days):
         # define the upper and lower bounds depending on our threshold
         df["Upper"] = df["SMA"] + threshold * df["STD"]
         df["Safety_Upper"] = df["SMA"] + safety_threshold * df["STD"]
+      
         df["Lower"] = df["SMA"] - threshold * df["STD"]
         df["Safety_Lower"] = df["SMA"] - safety_threshold * df["STD"]
 
         # make a column to signal if we'll go long (1), short (2) or stay neutral (0)
-        df["Signal"] = np.where((df[symbol]>df["Upper"]) & (df[symbol]<df["Safety_Upper"]), 1, 0)
-        df["Signal"] = np.where((df[symbol]<df["Lower"]) & (df[symbol] > df["Safety_Lower"]), -1, df["Signal"])
+        df["Signal"] = np.where((df[symbol]>df["Upper"]) & (df[symbol]<df["Safety_Upper"]), -1, 0)
+        df["Signal"] = np.where((df[symbol]<df["Lower"]) & (df[symbol] > df["Safety_Lower"]), 1, df["Signal"])
 
         # drop first (n_sma) number of days, bc NaN values
         # get all the values after the first n_sma days
@@ -89,8 +91,8 @@ def SMAMeanReversion(tickers, n_sma, threshold, n_days):
         df["Lower"] = df["SMA"] - threshold * df["STD"]
 
         # make a column to signal if we'll go long (1), short (2) or stay neutral (0)
-        df["Signal"] = np.where((df[symbol]>df["Upper"]), 1, 0)
-        df["Signal"] = np.where((df[symbol]<df["Lower"]), -1, df["Signal"])
+        df["Signal"] = np.where((df[symbol]>df["Upper"]), -1, 0)
+        df["Signal"] = np.where((df[symbol]<df["Lower"]), 1, df["Signal"])
 
         # drop first (n_sma) number of days, bc NaN values
         # get all the values after the first n_sma days
