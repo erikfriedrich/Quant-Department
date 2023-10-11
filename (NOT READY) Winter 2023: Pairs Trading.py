@@ -21,16 +21,25 @@ def getStockInfo(tickers, start, end):
 
     # goes trough every ticker in our list of thickers
     for ticker in tickers:
+        try:
+            # adds them as a stock symbol to our list of equities, so QuantBook can work with it
+            symbol = qb.AddEquity(ticker).Symbol
+
+            # get daily price data for the ticker currently in, over our defined time periods (start -> end)
+            df = qb.History(symbol, start, end, Resolution.Daily)["close"].unstack(level=0)
+
+            if df.empty:
+                print(f"No data available for {ticker} in the specified date range.")
+                continue
+            # add the df referring to ONE ticker to our results dataframe as its own column
+            results[ticker] = df
+
+        except KeyError:
+            print(f"Data for {ticker} not found.")
+            continue
         
-        # adds them as a stock symbol to our list of equities, so QuantBook can work with it
-        symbol = qb.AddEquity(ticker).Symbol
-
-        # get daily price data for the ticker currently in, over our defined time periods (start -> end)
-        df = qb.History(symbol, start, end, Resolution.Daily)["close"].unstack(level=0)
-
-        # add the df referring to ONE ticker to our results dataframe as its own column
-        results[ticker] = df
-
+    if results.isnull().values.any():
+        print("WARNING, The DataFrame containts NaN value(s). The specified range is probably too long.")
     # calculate returns for each stock using pct_change() and fillna(0) [first values would be NaN]
     stock_returns = results.pct_change().fillna(0)
 
@@ -56,6 +65,8 @@ def cointegration(data, tickers):
         
         if p_value <= 0.05:
             results_cointegration[pair] = "cointegrated"
+
+    print(results_cointegration)
 
     return results_cointegration
 
@@ -104,7 +115,7 @@ def z_score(spread_pairs):
 
 def trade(stock_prices, spreads, z_scores, std_open, std_out, stock_returns):
 
-    strategy_returns = pd.DataFrame()
+    strategy_returns = pd.DataFrame(index=stock_prices.index)
     
     for pair in spreads.columns:
 
@@ -120,6 +131,8 @@ def trade(stock_prices, spreads, z_scores, std_open, std_out, stock_returns):
 
                 else:
                     returns_for_pair.append(0)
+
+            returns_for_pair.append(0)
 
             strategy_returns[pair] = returns_for_pair
 
@@ -137,6 +150,41 @@ def cumulative_returns(returns):
         
     return cumulative_return
 
+def visualize_strategy_performance(strategy_returns):
+    """
+    Visualize the performance of the strategy over time.
+    """
+
+    for pair in strategy_returns.columns:
+
+        cumulative_portfolio_returns = (1 + strategy_returns[pair]).cumprod() - 1
+        
+        plt.figure(figsize=(15, 6))
+        plt.plot(cumulative_portfolio_returns.index, cumulative_portfolio_returns.values * 100)  # Convert to percentage
+        plt.title(f"Strategy Cumulative Returns over Time for {pair}")
+        plt.xlabel("Date")
+        plt.ylabel("Cumulative Returns (%)")
+        plt.legend(["Strategy Performance"])
+        plt.grid(True)
+
+def compute_sharpe_ratio(returns, rfr, cumulative_returns):
+
+    results = {}
+    """
+    Calculate the Sharpe ratio of the strategy based on the returns.
+    """
+    for col in returns.columns:
+
+        expected_portfolio_return = (cumulative_returns[col] + 1) ** (1/ (len(returns)/252)) - 1
+        annual_volatility = returns[col].std() * np.sqrt(252)
+
+        sharpe_ratio = (expected_portfolio_return - rfr) / annual_volatility
+
+        results[col] = sharpe_ratio 
+    
+    return results
+
+rfr = 0.02
 std_open = 1
 std_out = 0.5 # currently not used, but maybe in next weeks version
 tickers = ['KO', 'PEP', 'ADBE', 'MSFT']
@@ -149,4 +197,16 @@ results_cointegration = cointegration(stock_prices, tickers)
 spreads = spread(results_cointegration)
 z_scores = z_score(spreads)
 returns = trade(stock_prices, spreads, z_scores, std_open, std_out, stock_returns)
-cumulative_returns(returns)
+cum_return = cumulative_returns(returns)    
+visualize_strategy_performance(returns)
+sharpe_ratios = compute_sharpe_ratio(returns, rfr, cum_return)
+
+# Displaying cumulative returns
+print("Cumulative Returns:")
+for pair, ret in cum_return.items():
+    print(f"{pair[0]} and {pair[1]}: {ret:.2%}")
+
+# Display each strategies Sharpe-Ratio
+print("Sharpe Rations:")
+for pair, sr in sharpe_ratios.items():
+    print(f"{pair}: {sr:.2}")
