@@ -38,12 +38,15 @@ def getStockInfo(tickers, start, end):
             # Fetch daily closing prices for the ticker
             df = qb.History(symbol, start, end, Resolution.Daily)["close"].unstack(level=0)
 
+            # gives us an error message, if there are no values in the dataframe ( => we weren't able to download any data)
             if df.empty:
                 print(f"No data available for {ticker} in the specified date range.")
                 continue
-            
+
+            # stores the dataframe of each ticker, which consists of one column, as a column in our results dataframe  
             results[ticker] = df
 
+        # print an error message if a key error occurs ( => we have used a ticker that doesn't exists, or has a typo in it)
         except KeyError:
             print(f"Data for {ticker} not found.")
             continue
@@ -69,9 +72,14 @@ def cointegration(data, tickers):
     Returns:
     - results_cointegration (dict): Pairs that are cointegrated.
     """
+
+    # create dictionary to store cointegrated pairs 
     results_cointegration = {}
+
+    # makes a list containing all (distinct) pairs that can be formed with our tickers
     possible_pairs = list(combinations(tickers, 2))
 
+    # goes trough each possible pair, tests it for cointegration and if it's significant (p-value <= 0.05), we add it to our results
     for pair in possible_pairs:
         _, p_value, _ = coint(data[pair[0]], data[pair[1]])
         
@@ -95,6 +103,8 @@ def spread(ticker_pairs):
     spread = pd.DataFrame()
 
     for key in results_cointegration.keys():
+        
+        # assign stocks to x and y
         x = stock_prices[key[1]]
         y = stock_prices[key[0]]
 
@@ -102,7 +112,7 @@ def spread(ticker_pairs):
         x = sm.add_constant(x)
         model = sm.OLS(y, x).fit()
 
-        # Calculate spread
+        # Calculate spread (spread = actual y - slope of linear regression * actual x) (=> spread represents the difference between what's the actual y and predicted y) 
         spread[key] = y - model.params[key[1]] * x[key[1]]
         
         # uncomment to visualize each pairs spread
@@ -128,6 +138,7 @@ def z_score(spread_pairs):
 
     for pair in spread_pairs.columns:
         # Calculate z-score
+            # z_score = (acutal value - expected value) / standard deviation
         z_scores[pair] = (spread_pairs[pair] - spread_pairs[pair].mean()) / spread_pairs[pair].std()
 
         # uncomment to visualize z_scores
@@ -161,6 +172,10 @@ def trade(stock_prices, spreads, z_scores, std_open, std_out, stock_returns):
 
         # Determine buy/sell/hold signals based on z-scores
         for i in range(len(stock_prices)-1):
+
+        # our spread is y minus x, where y is the first element of the pair and x is the second element
+        # if the z_score of our spread is to low => y is to low, compared to x => short x, go long y
+        # vice versa if the z_score is to high
             if z_scores[pair][i] < -std_open:
                 returns_for_pair.append(- stock_returns[pair[1]][i+1] + stock_returns[pair[0]][i+1])
             elif z_scores[pair][i] > std_open:
